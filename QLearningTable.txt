@@ -1,0 +1,13 @@
+ROW: Every Game State // What cards you have (Total Count)
+COLUMN: Every Action // Hit, Stand, Split
+
+Cards:
+Ace(1/11), 2, 3, 4, 5, 6, 7, 8, 9, 10/Face(All worth 10)
+
+// Making the assumption that we do not care about what the dealer is showing (simplified)
+
+Game States:
+2 -> 20 ex. Ace/4 = 5(16)
+
+Q Table get yeah Q Table
+https://docs.google.com/spreadsheets/d/1wE76Q5M8M4GsNz9lAbcgPXldrK0PZ0oXaJlYu_wcjtU
