@@ -1,3 +1,5 @@
+# classes and functions for cards and decks of cards
+
 import random
 
 cardValues = ["ace",
@@ -14,7 +16,7 @@ cardValues = ["ace",
     "queen",
     "king"]
 
-cardSuits = ["spades","hearts","diamonds","cloves"]
+cardSuits = ["spades","hearts","diamonds","clubs"]
 
 # represents a card in the blackjack game
 class Card:
