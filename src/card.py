@@ -57,8 +57,8 @@ class Deck:
 # test
 if __name__ == "__main__":
     deck = Deck()
-    print deck
-    print "DRAWING"
-    print deck.draw()
-    print "DECK AFTER DRAW"
-    print deck
+    print (deck)
+    print ("DRAWING")
+    print (deck.draw())
+    print ("DECK AFTER DRAW")
+    print (deck)
