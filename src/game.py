@@ -17,11 +17,14 @@ if __name__ == "__main__":
 
     print("Starting hand %s %s" %(hand[0],hand[1]))
 
-    while handValue(hand) < 21:
-        card = deck.draw()
-        print("Hit %s" % card)
-        hand.append(card)
-    if handValue(hand) == 21:
-        print("You win somehow")
-    else:
-        print("Bust")
+    if(handValue(hand) != 21): # starting hand is not blackjack
+        while handValue(hand) < 21: # keep hitting until bust or 21
+            card = deck.draw()
+            print("Hit %s" % card)
+            hand.append(card)
+        if handValue(hand) == 21:
+            print("You win somehow")
+        else:
+            print("Bust")
+    else: # starting hand was a blackjack (21)
+        print("Blackjack!")
