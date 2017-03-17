@@ -30,6 +30,9 @@ class Card:
     def __str__(self):
         return "<%s:%s:%d>" % (self.number,self.suit,self.value)
 
+    def __repl__(self):
+        return "<%s:%s:%d>" % (self.number,self.suit,self.value)
+
 # a deck of cards that can be drawn from and shuffled
 class Deck:
     def __init__(self):
