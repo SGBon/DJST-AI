@@ -5,14 +5,19 @@ import tensorflow as tf
 np.set_printoptions(suppress=True)
 
 # Set up a debug mode
-debug = 0
+debug = 1
 
 # Q Table
 Q = np.zeros([7,2])
 # Learning Rate
-lr = .9
+lr = .5
 # Future Reward value
 y = .9
+
+# Make a file to print to help see what's going on
+filename = "nn_lr5_y9.txt"
+log = open(filename,'w')
+
 # Number of runs
 num_runs = 2000
 # Max number of steps
@@ -48,6 +53,7 @@ jList = []
 rList = []
 e = 0.1
 
+
 with tf.Session() as sess:
   sess.run(init)
   for i in range(num_runs):
@@ -56,8 +62,9 @@ with tf.Session() as sess:
     j = 0
 
     if debug==1:
-      print("Round " + str(i))
-      print("----------")
+      log.write("Round " + str(i)+"\n")
+      log.write("----------\n")
+
 
     while j < maxSteps:
       j += 1
@@ -65,10 +72,10 @@ with tf.Session() as sess:
       # Definitely not sure what this is doing. a is action I think
       a, allQ = sess.run([predict,Qout], feed_dict={inputs1:np.identity(7)[s:s+1]})
 
-      random = ""
+      random = "\n"
       # Small chance that we move randomly
       if np.random.rand(1)<e:
-        random = "      RANDOM"
+        random = "      RANDOM\n"
         if np.random.rand(1)<0.5:
           a[0]==0
         else:
@@ -83,8 +90,8 @@ with tf.Session() as sess:
 
       if debug==1:
         check = sess.run(W)
-        print(check[s,:])
-        print("Current state: " + str(s) + "   Moving to: " + str(s1) + "   reward will be: " + str(r) + random)
+        log.write(np.array_str(check[s,:]))
+        log.write("Current state: " + str(s) + "   Moving to: " + str(s1) + "   r: " + str(r) + random)
 
       # Get the Q' values by running the new state through the network
       Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(7)[s1:s1+1]})
@@ -102,11 +109,12 @@ with tf.Session() as sess:
       if r==1 or r==-1:
         #reduce chance of random action as we learn
         e = 1./((i/50)+10)
-        break
+        break 
     if debug==1:
-      print()
-      input()
+      log.write("\n")
+      #input()
     jList.append(j)
     rList.append(rAll)      
 
+log.close()
 print("Score over time: " + str(sum(rList)/num_runs))
