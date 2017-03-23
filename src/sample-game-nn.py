@@ -7,15 +7,13 @@ np.set_printoptions(suppress=True)
 # Set up a debug mode
 debug = 1
 
-# Q Table
-Q = np.zeros([7,2])
 # Learning Rate
 lr = .5
 # Future Reward value
 y = .9
 
 # Make a file to print to help see what's going on
-filename = "nn_lr5_y9.txt"
+filename = "nn_lr" + str(lr) + "_y" + str(y) + ".txt"
 log = open(filename,'w')
 
 # Number of runs
@@ -91,7 +89,7 @@ with tf.Session() as sess:
       if debug==1:
         check = sess.run(W)
         log.write(np.array_str(check[s,:]))
-        log.write("Current state: " + str(s) + "   Moving to: " + str(s1) + "   r: " + str(r) + random)
+        log.write(" Current state: " + str(s) + "   Moving to: " + str(s1) + "   r: " + str(r) + random)
 
       # Get the Q' values by running the new state through the network
       Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(7)[s1:s1+1]})
