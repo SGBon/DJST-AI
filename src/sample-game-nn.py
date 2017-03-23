@@ -27,20 +27,29 @@ maxSteps = 100
 # 0 Open Space
 gameMap = [-1,0,0,0,1,0,-1]
 
+# Number of possible states you can be in our world
+# since the only thing that mattters is the position on the map
+# we end up with len(gameMap) states
+stateCount = len(gameMap)
+
+# number of actions in our world
+# AKA Left or Right = 2
+actionCount = 2
+
 # Clears the default graph stack and resets the global default graph.
 tf.reset_default_graph()
 
 # Create the input array
-inputs1 = tf.placeholder(shape=[1,7], dtype=tf.float32)
+inputs1 = tf.placeholder(shape=[1,stateCount], dtype=tf.float32)
 
 # Weights I think, in range [0,0.01)
 # Not sure why the example uses random_uniform instead of any of the other random options
 
-W = tf.Variable(tf.random_uniform([7,2], 0, 0.01))
+W = tf.Variable(tf.random_uniform([stateCount, actionCount], 0, 0.01))
 Qout = tf.matmul(inputs1, W)
 predict = tf.argmax(Qout,1)
 
-nextQ = tf.placeholder(shape=[1,2], dtype=tf.float32)
+nextQ = tf.placeholder(shape=[1,actionCount], dtype=tf.float32)
 loss = tf.reduce_sum(tf.square(nextQ-Qout))
 trainer = tf.train.GradientDescentOptimizer(learning_rate=lr)
 updateModel = trainer.minimize(loss)
@@ -55,7 +64,13 @@ e = 0.1
 with tf.Session() as sess:
   sess.run(init)
   for i in range(num_runs):
-    s = np.random.choice([1,2,3,5])
+
+    # pick a random starting position
+    s = np.random.randint(0, stateCount)
+    #if that is not a valid starting position retry until we obtain a valid position
+    while(gameMap[s] != 0):
+      s = np.random.randint(0, stateCount)
+
     rAll = 0
     j = 0
 
@@ -68,7 +83,7 @@ with tf.Session() as sess:
       j += 1
 
       # Definitely not sure what this is doing. a is action I think
-      a, allQ = sess.run([predict,Qout], feed_dict={inputs1:np.identity(7)[s:s+1]})
+      a, allQ = sess.run([predict,Qout], feed_dict={inputs1:np.identity(stateCount)[s:s+1]})
 
       random = "\n"
       # Small chance that we move randomly
@@ -92,7 +107,7 @@ with tf.Session() as sess:
         log.write(" Current state: " + str(s) + "   Moving to: " + str(s1) + "   r: " + str(r) + random)
 
       # Get the Q' values by running the new state through the network
-      Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(7)[s1:s1+1]})
+      Q1 = sess.run(Qout,feed_dict={inputs1:np.identity(stateCount)[s1:s1+1]})
 
       # Obtain maxQ' and set the target value for chosen action
       maxQ1 = np.max(Q1)
@@ -100,7 +115,7 @@ with tf.Session() as sess:
       targetQ[0,a[0]] = r + y*maxQ1
 
       # Train the network
-      _, W1 = sess.run([updateModel, W], feed_dict={inputs1:np.identity(7)[s:s+1],nextQ:targetQ})
+      _, W1 = sess.run([updateModel, W], feed_dict={inputs1:np.identity(stateCount)[s:s+1],nextQ:targetQ})
 
       rAll += r
       s = s1
