@@ -10,14 +10,14 @@ def handValue(hand):
     return val
 
 if __name__ == "__main__":
-    num_runs = 1000
+    num_runs = 10000
     max_steps = 100
 
     lr = 0.01 # learning rate
     y = .9 # future reward value
 
     # possible states, currently hand value and bust state (1-22)
-    stateCount = 23
+    stateCount = 22
 
     # actions in world: hit, stay; split comes later
     actionCount = 2
@@ -59,7 +59,7 @@ if __name__ == "__main__":
             hand.append(deck.draw())
 
             # get value of state
-            s = handValue(hand)
+            s = handValue(hand) - 1
             rAll = 0
             j = 0
 
@@ -91,6 +91,20 @@ if __name__ == "__main__":
                 else:
                     r = 0
 
+                s1 -= 1
+
+                # perform dealer logic
+                if passed:
+                    dealer = []
+                    dealer.append(deck.draw())
+                    dealer.append(deck.draw())
+                    while handValue(dealer) < handValue(hand):
+                        dealer.append(deck.draw())
+                    if handValue(dealer) > 21:
+                        r = 1 # dealer busted, player wins
+                    else:
+                        r = -1 # dealer beat player
+
                 # obtain Q' values by feeding new state through network
                 Q1 = sess.run(Qout,feed_dict={inputs:np.identity(stateCount)[s1:s1+1]})
 
@@ -103,12 +117,14 @@ if __name__ == "__main__":
                 _, W1 = sess.run([updateModel,W],feed_dict={inputs:np.identity(stateCount)[s:s+1],nextQ:targetQ})
 
                 rAll += r
+
                 s = s1
                 if r != 0 or passed == True:
                     # reduce chance of random action
                     e = 1./((i/50.0)+10)
-                    print("Finishing with reward %d and handvalue %d" % (r,s))
+                    #print("Finishing with reward %d and handvalue %d" % (r,s))
                     break
+            jlist.append(j)
+            rlist.append(rAll)
 
-
-    print("Win percentage %f" % (sum(rlist)/float(num_runs)))
+    print("Average score %f" % (sum(rlist)/float(num_runs)))
