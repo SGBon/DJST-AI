@@ -9,9 +9,14 @@ def handValue(hand):
         val += i.value
     return val
 
+
 if __name__ == "__main__":
-    num_runs = 10000
-    max_steps = 100
+    # To avoid printing in scientific notation
+    np.set_printoptions(suppress=True)
+
+    # run parameters
+    num_runs = 1000
+    max_steps = 10
 
     lr = 0.01 # learning rate
     y = .9 # future reward value
@@ -27,7 +32,7 @@ if __name__ == "__main__":
 
     # establish input tensor and weights used for actions
     inputs = tf.placeholder(shape=[1,stateCount],dtype=tf.float32)
-    W = tf.Variable(tf.random_uniform([stateCount,actionCount],0,0.01))
+    W = tf.Variable(tf.random_uniform([stateCount,actionCount],0,0.001))
     Qout = tf.matmul(inputs,W)
     predict = tf.argmax(Qout,1)
 
@@ -44,8 +49,13 @@ if __name__ == "__main__":
     rlist = []
     e = 0.1
 
+
     with tf.Session() as sess:
         sess.run(init)
+
+        print("INITIAL WEIGHTS")
+        print(sess.run(W))
+
         wins = 0
         deck = card.Deck()
         for i in range(num_runs):
@@ -84,9 +94,11 @@ if __name__ == "__main__":
                     passed = True
 
                 if s1 == 21:
-                    r = 1
+                    # larger reward for getting 21 before dealer
+                    r = 2
                 elif s1 > 21:
-                    r = -1
+                    # larger penalty for busting
+                    r = -2
                     s1 = 22
                 else:
                     r = 0
@@ -101,7 +113,8 @@ if __name__ == "__main__":
                     while handValue(dealer) < handValue(hand):
                         dealer.append(deck.draw())
                     if handValue(dealer) > 21:
-                        r = 1 # dealer busted, player wins
+                        # dealer bust, player wins
+                        r = 1
                     else:
                         r = -1 # dealer beat player
 
@@ -118,7 +131,7 @@ if __name__ == "__main__":
 
                 rAll += r
 
-                s = s1
+                s = s1 # update state
                 if r != 0 or passed == True:
                     # reduce chance of random action
                     e = 1./((i/50.0)+10)
@@ -127,4 +140,6 @@ if __name__ == "__main__":
             jlist.append(j)
             rlist.append(rAll)
 
-    print("Average score %f" % (sum(rlist)/float(num_runs)))
+        print("FINAL WEIGHTS")
+        print(sess.run(W))
+        print("Average score %f" % (sum(rlist)/float(num_runs)))
