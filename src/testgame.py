@@ -91,11 +91,6 @@ if __name__ == "__main__":
 
     saver = tf.train.Saver()
 
-    # reward and steps list
-    jlist = []
-    rlist = []
-    e = 0.1
-
     with tf.Session() as sess:
         sess.run(init)
         saver.restore(sess,args.modelfile)
@@ -118,7 +113,6 @@ if __name__ == "__main__":
 
             # get value of state
             s = handValue(hand) - 1
-            rAll = 0
             j = 0
 
             #print("Starting hand %s %s" %(hand[0],hand[1]))
@@ -126,10 +120,6 @@ if __name__ == "__main__":
                 j += 1
                 # choose an action greedily with e chance of random action
                 a,allQ = sess.run([predict,Qout],feed_dict={inputs:np.identity(stateCount)[s:s+1]})
-
-                # roll for random movement
-                if np.random.rand(1) < e:
-                    a[0] = random.choice(range(actionCount))
 
                 passed = False
                 # get new state and reward
@@ -171,27 +161,10 @@ if __name__ == "__main__":
                     else:
                         r = -1 # dealer beat player
 
-                # obtain Q' values by feeding new state through network
-                Q1 = sess.run(Qout,feed_dict={inputs:np.identity(stateCount)[s1:s1+1]})
-
-                # Obtain maxQ' and set target value for chosen action
-                maxQ1 = np.max(Q1)
-                targetQ = allQ
-                targetQ[0,a[0]] = r * y*maxQ1
-
-                # train network with target and predicted value
-                _, W1 = sess.run([updateModel,W],feed_dict={inputs:np.identity(stateCount)[s:s+1],nextQ:targetQ})
-
-                rAll += r
-
                 s = s1 # update state
                 if r != 0:
                     if r > 0:
                         wins += 1
-                    # reduce chance of random action
-                    e = 1./((i/50.0)+10)
                     break
-            jlist.append(j)
-            rlist.append(rAll)
 
         print("Win percentage\n%f" %(wins/float(num_runs)))
