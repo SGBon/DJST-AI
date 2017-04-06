@@ -86,7 +86,6 @@ if __name__ == "__main__":
     rlist = []
     e = 0.1
 
-
     with tf.Session() as sess:
         sess.run(init)
 
@@ -178,10 +177,11 @@ if __name__ == "__main__":
                 rAll += r
 
                 s = s1 # update state
-                if r != 0 or passed == True:
+                if r != 0:
+                    if r > 0:
+                        wins += 1
                     # reduce chance of random action
                     e = 1./((i/50.0)+10)
-                    #print("Finishing with reward %d and handvalue %d" % (r,s))
                     break
             jlist.append(j)
             rlist.append(rAll)
@@ -189,3 +189,4 @@ if __name__ == "__main__":
         print("FINAL WEIGHTS")
         print(sess.run(W))
         print("Average score %f" % (sum(rlist)/float(num_runs)))
+        print("Win percentage %f" %(wins/float(num_runs)))
