@@ -185,7 +185,7 @@ if __name__ == "__main__":
                         r = -1
 
                     # Hit on soft 17 stand elsewise
-                    while ((dealer_val < 17) or (dealer_val == 17 and dealer_soft > 0)):   
+                    while ((dealer_val < 17) or (dealer_val == 17 and dealer_soft > 0)):
                         dealer.append(deck.draw())
                         dealer_val, dealer_soft = handValue(dealer)
 
@@ -214,18 +214,14 @@ if __name__ == "__main__":
                 if r != 0:
                     if r > 0.5:
                         wins += 1
-                        print("Win: D: %d, P: %d" %(dealer_val, val))
                     elif r == 0.5:
                         push += 1
-                        print("Push: D: %d, P: %d" %(dealer_val, val))
-                    else:
-                        print("Loss: D: %d, P: %d" %(dealer_val, val))
                     # reduce chance of random action
                     e = 1./((i/50.0)+10)
                     break
             jlist.append(j)
             rlist.append(rAll)
 
-        print("Win percentage\n%f" %(wins/float(num_runs)))
         print("Pushes: "+str(push))
+        print("Win percentage\n%f" %(wins/float(num_runs)))
         saver.save(sess,args.outfile)
