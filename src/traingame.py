@@ -7,6 +7,7 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import argparse
+import nninfo
 
 def handValue(hand):
     val = 0
