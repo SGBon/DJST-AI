@@ -50,7 +50,7 @@ if __name__ == "__main__":
     np.set_printoptions(suppress=True)
 
     # run parameters
-    num_runs = 1000
+    num_runs = 100000
     max_steps = 10
     # 0 - num_runs, changes which run will be displayed
     display_run = 0
