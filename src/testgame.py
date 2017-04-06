@@ -1,3 +1,5 @@
+# runs test on pretrained model to play blackjack
+
 import card
 import numpy as np
 import random
@@ -43,7 +45,7 @@ def display(hand, dealer):
         print("Player's Hand\n")
     cv2.imshow('',game_img)
     # press any key to continue
-    cv2.waitKey(0)
+    cv2.waitKey(100)
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
