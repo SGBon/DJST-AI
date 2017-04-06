@@ -30,6 +30,7 @@ if __name__ == "__main__":
     actionCount = 2
 
     wins = 0
+    push = 0
     deck = card.Deck()
     for i in range(num_runs):
         # reset environment
@@ -103,12 +104,15 @@ if __name__ == "__main__":
                     
 
             if r != 0:
-                if r > 0:
+                if r > 0.5:
                     wins += 1
-                    # print("Win > D: %d, P: %d" %(dealer_val,val))
+                    print("Win > D: %d, P: %d" %(dealer_val,val))
+                elif r == 0.5:
+                    push += 1
+                    print("Push > D: %d, P: %d" %(dealer_val,val))
                 else:
-                    if(dealer_val > 21):
-                        print("Loss > D: %d, P: %d" %(dealer_val,val))
+                    print("Loss > D: %d, P: %d" %(dealer_val,val))
                 break
 
     print("Win percentage\n%f" %(wins/float(num_runs)))
+    print("Pushes: "+str(push))
