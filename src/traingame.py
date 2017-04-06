@@ -4,6 +4,7 @@ import random
 import tensorflow as tf
 import numpy as np
 import cv2
+import argparse
 
 def handValue(hand):
     val = 0
@@ -46,11 +47,16 @@ def display(hand, dealer):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='BlackJack Neural Network Trainer')
+    parser.add_argument('num_runs',type=int,help="number of runs to train the model")
+    parser.add_argument('outfile', help='file to output model to')
+    args = parser.parse_args()
+
     # To avoid printing in scientific notation
     np.set_printoptions(suppress=True)
 
     # run parameters
-    num_runs = 100000
+    num_runs = args.num_runs
     max_steps = 10
     # 0 - num_runs, changes which run will be displayed
     display_run = 0
@@ -80,6 +86,8 @@ if __name__ == "__main__":
     updateModel = trainer.minimize(loss)
 
     init = tf.global_variables_initializer()
+
+    saver = tf.train.Saver()
 
     # reward and steps list
     jlist = []
@@ -190,3 +198,4 @@ if __name__ == "__main__":
         print(sess.run(W))
         print("Average score %f" % (sum(rlist)/float(num_runs)))
         print("Win percentage %f" %(wins/float(num_runs)))
+        saver.save(sess,args.outfile)

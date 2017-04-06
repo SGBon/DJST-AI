@@ -4,6 +4,7 @@ import random
 import tensorflow as tf
 import numpy as np
 import cv2
+import argparse
 
 def handValue(hand):
     val = 0
@@ -46,11 +47,16 @@ def display(hand, dealer):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='BlackJack Neural Network Tester')
+    parser.add_argument('num_runs',type=int,help="number of runs to test the model")
+    parser.add_argument('modelfile', help='file where trained model is located')
+    args = parser.parse_args()
+
     # To avoid printing in scientific notation
     np.set_printoptions(suppress=True)
 
     # run parameters
-    num_runs = 100000
+    num_runs = args.num_runs
     max_steps = 10
     # 0 - num_runs, changes which run will be displayed
     display_run = 0
@@ -81,6 +87,8 @@ if __name__ == "__main__":
 
     init = tf.global_variables_initializer()
 
+    saver = tf.train.Saver()
+
     # reward and steps list
     jlist = []
     rlist = []
@@ -88,6 +96,7 @@ if __name__ == "__main__":
 
     with tf.Session() as sess:
         sess.run(init)
+        saver.restore(sess,args.modelfile)
 
         print("INITIAL WEIGHTS")
         print(sess.run(W))
