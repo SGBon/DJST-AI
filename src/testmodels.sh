@@ -13,5 +13,5 @@ fi
 
 for i in 100 1000 10000 100000 1000000
 do
-  python testgame.py $i $MODEL_DIR/train$i.tr | tail -n 1 >> testresults.txt
+  python3 testgame.py $i $MODEL_DIR/train$i.tr | tail -n 1 >> testresults.txt
 done
