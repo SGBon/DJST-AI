@@ -99,9 +99,6 @@ if __name__ == "__main__":
     with tf.Session() as sess:
         sess.run(init)
 
-        print("INITIAL WEIGHTS")
-        print(sess.run(W))
-
         wins = 0
         deck = card.Deck()
         for i in range(num_runs):
@@ -123,7 +120,6 @@ if __name__ == "__main__":
             rAll = 0
             j = 0
 
-            #print("Starting hand %s %s" %(hand[0],hand[1]))
             while j < max_steps:
                 j += 1
                 # choose an action greedily with e chance of random action
@@ -196,8 +192,5 @@ if __name__ == "__main__":
             jlist.append(j)
             rlist.append(rAll)
 
-        print("FINAL WEIGHTS")
-        print(sess.run(W))
-        print("Average score %f" % (sum(rlist)/float(num_runs)))
-        print("Win percentage %f" %(wins/float(num_runs)))
+        print("Win percentage\n%f" %(wins/float(num_runs)))
         saver.save(sess,args.outfile)

@@ -80,4 +80,4 @@ if __name__ == "__main__":
                     wins += 1
                 break
 
-    print("Win percentage %f" %(wins/float(num_runs)))
+    print("Win percentage\n%f" %(wins/float(num_runs)))

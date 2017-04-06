@@ -88,5 +88,6 @@ ENV/
 # Rope project settings
 .ropeproject
 
-#DJST-AI stuff
+#DJST-AI specific stuff
 train/
+*results.txt

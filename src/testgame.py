@@ -100,9 +100,6 @@ if __name__ == "__main__":
         sess.run(init)
         saver.restore(sess,args.modelfile)
 
-        print("INITIAL WEIGHTS")
-        print(sess.run(W))
-
         wins = 0
         deck = card.Deck()
         for i in range(num_runs):
@@ -197,7 +194,4 @@ if __name__ == "__main__":
             jlist.append(j)
             rlist.append(rAll)
 
-        print("FINAL WEIGHTS")
-        print(sess.run(W))
-        print("Average score %f" % (sum(rlist)/float(num_runs)))
-        print("Win percentage %f" %(wins/float(num_runs)))
+        print("Win percentage\n%f" %(wins/float(num_runs)))
