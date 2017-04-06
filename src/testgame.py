@@ -4,16 +4,22 @@ import card
 import numpy as np
 import random
 import tensorflow as tf
-import numpy as np
-import cv2
 import argparse
+import nninfo
 
 def handValue(hand):
     val = 0
+    soft = 0
     for i in hand:
+        if(i.number == "ace"):
+            soft += 1
         val += i.value
-    return val
+        if(val > 21 and soft > 0):
+            val -= 10
+            soft -= 1
+    return val, soft
 
+"""
 def display(hand, dealer):
     for i in dealer:
         img = cv2.imread('images/'+i.number+'_of_'+i.suit+'.png', 0)
@@ -47,6 +53,7 @@ def display(hand, dealer):
     # press any key to continue
     cv2.waitKey(100)
     cv2.destroyAllWindows()
+"""
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='BlackJack Neural Network Tester')
@@ -67,7 +74,7 @@ if __name__ == "__main__":
     y = .9 # future reward value
 
     # possible states, currently hand value and bust state (1-22)
-    stateCount = 22
+    stateCount = 29
 
     # actions in world: hit, stay; split comes later
     actionCount = 2
@@ -96,6 +103,7 @@ if __name__ == "__main__":
         saver.restore(sess,args.modelfile)
 
         wins = 0
+        push = 0
         deck = card.Deck()
         for i in range(num_runs):
             # reset environment
@@ -107,64 +115,89 @@ if __name__ == "__main__":
             # starting hand
             hand = []
             hand.append(deck.draw())
+            dealer.append(deck.draw())
             hand.append(deck.draw())
-            if (i == display_run):
-                display(hand, dealer)
+            dealer.append(deck.draw())
+            #if (i == display_run):
+            #    display(hand, dealer)
 
             # get value of state
-            s = handValue(hand) - 1
+            val, soft = handValue(hand)
+            s = nninfo.statemap[(val, soft)]
             j = 0
 
-            #print("Starting hand %s %s" %(hand[0],hand[1]))
+            passed = False
+            dealer_val = -1
             while j < max_steps:
                 j += 1
                 # choose an action greedily with e chance of random action
                 a,allQ = sess.run([predict,Qout],feed_dict={inputs:np.identity(stateCount)[s:s+1]})
 
-                passed = False
-                # get new state and reward
-                if a[0] == 0: # HIT
-                    card = deck.draw()
-                    hand.append(card)
-                    if (i == display_run):
-                        display(hand, dealer)
-                    s1 = handValue(hand)
-                elif a[0] == 1: # PASS
-                    s1 = s
+                if val == 21:
+                    # You got blackjack
+                    r = 1
                     passed = True
 
-                if s1 == 21:
-                    # larger reward for getting 21 before dealer
-                    r = 2
-                elif s1 > 21:
-                    # larger penalty for busting
-                    r = -2
-                    s1 = 22
-                else:
-                    r = 0
+                if(not passed):
+                    # get new state and reward
+                    if a[0] == 0: # HIT
+                        card = deck.draw()
+                        hand.append(card)
+                       # if (i == display_run)f:
+                        #    display(hand, dealer)
+                        val, soft = handValue(hand)
+                        if(val < 21):
+                            s1 = nninfo.statemap[(val, soft)]
+                        else:
+                            s1 = 28
+                    elif a[0] == 1: # PASS
+                        s1 = s
+                        passed = True
 
-                s1 -= 1
+                    if val > 21:
+                        # larger penalty for busting
+                        r = -2
+                        s1 = 28
+                        passed = False
+                    else:
+                        s1 = s
+                        r = 0
 
                 # perform dealer logic
                 if passed:
-                    dealer.append(deck.draw())
-                    dealer.append(deck.draw())
-                    if (i == display_run):
-                        display(hand, dealer)
-                    while handValue(dealer) < handValue(hand):
+                    #if (i == display_run):
+                     #   display(hand, dealer)
+
+                    # Determine value of dealers current hand
+                    dealer_val, dealer_soft = handValue(dealer)
+
+                    # If dealer has blackjack everyone losses
+                    if(dealer_val == 21):
+                        r = -1
+
+                    # Hit on soft 17 stand elsewise
+                    while ((dealer_val < 17) or (dealer_val == 17 and dealer_soft > 0)):
                         dealer.append(deck.draw())
-                        if (i == display_run):
-                            display(hand, dealer)
-                    if handValue(dealer) > 21:
+                        dealer_val, dealer_soft = handValue(dealer)
+
+                    if (dealer_val > 21) or (val > dealer_val):
                         # dealer bust, player wins
-                        r = 1
+                        r = 2
+                    elif (dealer_val > val):
+                        r = -1
                     else:
-                        r = -1 # dealer beat player
+                        r = 0.5
+
 
                 s = s1 # update state
                 if r != 0:
-                    if r > 0:
+                    if r > 0.5:
                         wins += 1
+                    elif r == 0.5:
+                        push += 1
+                    # reduce chance of random action
+                    e = 1./((i/50.0)+10)
                     break
 
+        print("Pushes: "+str(push))
         print("Win percentage\n%f" %(wins/float(num_runs)))
