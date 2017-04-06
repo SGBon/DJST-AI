@@ -2,6 +2,8 @@ import card
 import numpy as np
 import random
 import tensorflow as tf
+import numpy as np
+import cv2
 
 def handValue(hand):
     val = 0
@@ -9,9 +11,45 @@ def handValue(hand):
         val += i.value
     return val
 
+def display(hand, dealer):
+    for i in dealer:
+        img = cv2.imread('images/'+i.number+'_of_'+i.suit+'.png', 0)
+        img = cv2.resize(img, (120, 180))
+        if(i is dealer[0]):
+            game_img = img
+        else:
+            game_img = np.concatenate((game_img, img), axis=1)
+    for i in hand:
+        img = cv2.imread('images/'+i.number+'_of_'+i.suit+'.png', 0)
+        img = cv2.resize(img, (120, 180))
+        if(i is hand[0]):
+            player_img = img
+        else:
+            player_img = np.concatenate((player_img, img), axis=1)
+    if 'game_img' in locals():
+        gh, gw = game_img.shape
+        ph, pw = player_img.shape
+        height = gh + ph
+        width = max(gw, pw)
+        tmp = np.zeros((height, width), np.uint8)
+        tmp[0:gh,0:gw] = game_img
+        tmp[gh:height,0:pw] = player_img
+        game_img = tmp
+        #game_img = np.concatenate((game_img, player_img), axis=0)
+        print("Dealer's Hand\nPlayer's Hand")
+    else:
+        game_img = player_img
+        print("Player's Hand\n")
+    cv2.imshow('',game_img)
+    # press any key to continue
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 if __name__ == "__main__":
     num_runs = 10000
     max_steps = 100
+    # 0 - num_runs, changes which run will be displayed
+    display_run = 0
 
     lr = 0.01 # learning rate
     y = .9 # future reward value
@@ -53,10 +91,14 @@ if __name__ == "__main__":
             deck.reset()
             deck.shuffle()
 
+            dealer = []
+
             # starting hand
             hand = []
             hand.append(deck.draw())
             hand.append(deck.draw())
+            if (i == display_run):
+                display(hand, dealer)
 
             # get value of state
             s = handValue(hand) - 1
@@ -78,6 +120,8 @@ if __name__ == "__main__":
                 if a[0] == 0: # HIT
                     card = deck.draw()
                     hand.append(card)
+                    if (i == display_run):
+                        display(hand, dealer)
                     s1 = handValue(hand)
                 elif a[0] == 1: # PASS
                     s1 = s
@@ -95,11 +139,14 @@ if __name__ == "__main__":
 
                 # perform dealer logic
                 if passed:
-                    dealer = []
                     dealer.append(deck.draw())
                     dealer.append(deck.draw())
+                    if (i == display_run):
+                        display(hand, dealer)
                     while handValue(dealer) < handValue(hand):
                         dealer.append(deck.draw())
+                        if (i == display_run):
+                            display(hand, dealer)
                     if handValue(dealer) > 21:
                         r = 1 # dealer busted, player wins
                     else:
