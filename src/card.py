@@ -18,7 +18,7 @@ cardNumbers = ["ace",
 
 cardSuits = ["spades","hearts","diamonds","clubs"]
 
-blackjackValues = [1,2,3,4,5,6,7,8,9,10,10,10,10]
+blackjackValues = [11,2,3,4,5,6,7,8,9,10,10,10,10]
 
 # represents a card in the blackjack game
 class Card:
