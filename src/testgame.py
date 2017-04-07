@@ -199,5 +199,6 @@ if __name__ == "__main__":
                     e = 1./((i/50.0)+10)
                     break
 
+        print(sess.run(W))
         print("Pushes: "+str(push))
         print("Win percentage\n%f" %(wins/float(num_runs)))

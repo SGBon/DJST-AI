@@ -59,6 +59,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='BlackJack Neural Network Trainer')
     parser.add_argument('num_runs',type=int,help="number of runs to train the model")
     parser.add_argument('outfile', help='file to output model to')
+    parser.add_argument("lr",type=float,default=0.01,help="learning rate")
+    parser.add_argument("gamma",type=float,default=0.9,help="future reward value")
     args = parser.parse_args()
 
     # To avoid printing in scientific notation
@@ -70,8 +72,8 @@ if __name__ == "__main__":
     # 0 - num_runs, changes which run will be displayed
     display_run = 0
 
-    lr = 0.01 # learning rate
-    y = .9 # future reward value
+    lr = args.lr # learning rate
+    y = args.gamma # future reward value
 
     # possible states, currently hand value and bust state (1-28)
     stateCount = 29
@@ -129,6 +131,7 @@ if __name__ == "__main__":
             # get value of state
             val, soft = handValue(hand)
             s = nninfo.statemap[(val, soft)]
+            s1 = s
             rAll = 0
             j = 0
 
@@ -141,7 +144,7 @@ if __name__ == "__main__":
 
                 if val == 21:
                     # You got blackjack
-                    r = 1
+                    r = 0.6
                     passed = True
 
                 if(not passed):
@@ -182,7 +185,7 @@ if __name__ == "__main__":
 
                     # If dealer has blackjack everyone losses
                     if(dealer_val == 21):
-                        r = -1
+                        r = -0.1
 
                     # Hit on soft 17 stand elsewise
                     while ((dealer_val < 17) or (dealer_val == 17 and dealer_soft > 0)):
@@ -191,7 +194,7 @@ if __name__ == "__main__":
 
                     if (dealer_val > 21) or (val > dealer_val):
                         # dealer bust, player wins
-                        r = 2
+                        r = 1
                     elif (dealer_val > val):
                         r = -1
                     else:
